@@ -1,0 +1,78 @@
+--- Running ios emulator ---
+ionic capacitor add ios - Generate the native project
+ionic capacitor open ios - Open the project in Xcode.
+ionic capacitor copy ios - copy changes to native project
+ionic capacitor update ios - install capacitor plugins 
+
+ionic capacitor build ios - do copy and then open
+ionic capacitor sync ios - do copy and update
+
+npx cap add ios - Generate the native project
+npx cap copy ios - copy changes to native project
+npx cap update ios - update ios plugins
+npx cap sync ios - command runs copy and then update
+npx cap open ios -  Open the project in Xcode.
+
+npx cap build - build APK
+
+-- build app
+ionic build --prod
+npx cap sync ios
+then open app in xcode
+
+
+npm run build
+npx cap sync ios 
+npm run debug:ios:dev
+npx vite build --mode development && ionic capacitor run ios --no-build --external -target=0C73686F-E9F7-4A7B-9BF4-7DA5D39C6650
+
+Deploy ios ---
+
+Before upload newly created app install new pods !!!
+pod install - pod install
+
+https://ionicframework.com/docs/deployment/app-store
+https://capacitorjs.com/docs/main/deployment/app-store
+answer about creating shell script https://stackoverflow.com/questions/74134200/xcode-cloud-unable-to-open-configuration-settings-file
+Xcode Cloud documentation - https://developer.apple.com/documentation/xcode/configuring-your-first-xcode-cloud-workflow
+
+--- Running android emulator ---
+ionic capacitor copy android
+ionic capacitor sync android
+ionic capacitor open android
+ionic capacitor run android
+ionic capacitor run android -l --external #RUN THIS AFTER PREVIOUS COMMAND FOR LIVERLOAD/DEBUGGING
+-- after running the last command, you can open `chrome://inspect/#devices` in Google Chrome
+-- to enable debug mode
+
+ Deploy ios ---
+Before build to prod:
+change versionCode in build.gradle
+
+
+--- Run app on dev or production ---
+https://www.digitalocean.com/community/tutorials/vuejs-working-with-environment-variables
+development:
+npm run serve
+production:
+npm run serve -- --mode=production
+https://eliteionic.com/tutorials/accessing-localhost-from-mobile-device-ios-android/
+
+--- Vuelidate ---
+https://vuelidate-next.netlify.app/validators.html#url
+add custom message to validation 
+    //import { helpers, } from '@vuelidate/validators'
+    // minLength: helpers.withMessage(
+    //     "Password must be more than 8 characters",
+    //     minLength(8)),
+
+--- How to generate icons and splash images ---
+https://ourcodeworld.com/articles/read/1580/how-to-create-the-icons-and-splash-for-your-android-application-in-capacitorjs
+
+1) Copy files `Google Drive/StemoSoft/EndorseMe/Marketing/Base/Resources-assets/resources` into root
+2) Run command `cordova-res ios --skip-config --copy`
+
+-- Privacy policy template --
+https://www.websiteplanet.com/bg/blog/%D1%81%D1%8A%D0%B3%D0%BB%D0%B0%D1%81%D1%83%D0%B2%D0%B0%D0%B9%D1%82%D0%B5-%D0%B2%D0%B0%D1%88%D0%B8%D1%82%D0%B5-%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D0%BB%D0%B0-%D0%B7%D0%B0-%D0%BF%D0%BE%D0%B2%D0%B5%D1%80/
+--- Image for email  ---
+https://stemosoft-stemos.imgbb.com

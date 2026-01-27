@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "914681372774",
+    "project_id": "device-hub-5de1f",
+    "storage_bucket": "device-hub-5de1f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:914681372774:android:ecc85e5c6b8f9cd4674da7",
+        "android_client_info": {
+          "package_name": "com.stemosoft.devicehub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQmpQnnKmlKEo2vXha_Q3OIshtOaKb2RU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:914681372774:android:2b541fc8bb26cd82674da7",
+        "android_client_info": {
+          "package_name": "demo.push.notifiations"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQmpQnnKmlKEo2vXha_Q3OIshtOaKb2RU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,7 @@
+{
+  "name": "android-simulator",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}

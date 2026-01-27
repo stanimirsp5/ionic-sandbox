@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">demo.push.notifiations</string>
+    <string name="title_activity_main">demo.push.notifiations</string>
+    <string name="package_name">demo.push.notifiations</string>
+    <string name="custom_url_scheme">demo.push.notifiations</string>
+</resources>
