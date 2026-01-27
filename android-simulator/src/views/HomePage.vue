@@ -53,14 +53,7 @@ import { isPlatform } from '@ionic/vue';
  npx cap run android
 */
 
-// Team ID (see step 1) SD776V8U3N
-// Bundle ID (see step 1) demo.push.notifiations
-// Key ID (see step 7) 79UBJV6XLW
-// Token value :
-// MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQg7JEfD9NOg44TNYUq
-// jx1lEcY0ZdqSTFKDs31PjOloaLCgCgYIKoZIzj0DAQehRANCAASaUzRgvCP5RCsy
-// inldbjnAC+f/jYJRCeWGO7Rf1PM8gdaNOiKqvQ0XoVhaIn0MWMdToEuDmyQqmb2j
-// loCXQUwJ
+
 
 function logMessage() {
   console.log('Button clicked!');
