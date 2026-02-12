@@ -23,6 +23,8 @@ then open app in xcode
 
 npm run build
 npx cap sync ios 
+npx cap open ios 
+
 npm run debug:ios:dev
 npx vite build --mode development && ionic capacitor run ios --no-build --external -target=0C73686F-E9F7-4A7B-9BF4-7DA5D39C6650
 
