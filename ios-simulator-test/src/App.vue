@@ -285,15 +285,32 @@ const scanRequestDevice = async () => {
   try {
     await ensureBleReady();
 
-    const bleDevice = await BleClient.requestDevice({
-      namePrefix: 'ST',
-      services: [SVC_UUID],
-    });
+    await BleClient.requestLEScan(
+      { services: [SVC_UUID], allowDuplicates: false },
+      (result) => {
+        const name = result.localName || result.device.name || '';
+        if (!name.startsWith('ST')) return;
+
+        const exists = scanResults.value.some(
+          (r) => r.device.deviceId === result.device.deviceId,
+        );
+        if (!exists) {
+          scanResults.value.push(result);
+        }
+      },
+    );
 
     await new Promise(resolve => setTimeout(resolve, 5000));
     await BleClient.stopLEScan();
-    appendStatus(`Found scanRequestDevice: ${JSON.stringify(bleDevice)}`);
 
+    scanResults.value.forEach(result => {
+      const label = result.localName || result.device.name || `ESP (${result.device.deviceId})`;
+
+      appendStatus(`Found: ${result.device.name || 'Unnamed device'} (${result.device.deviceId}). Label: ${label}, RSSI: ${result.rssi} `);
+    });
+    scanResults.value.sort((a, b) =>
+      (a.device.name || '').localeCompare(b.device.name || '')
+    );
   } catch (error) {
     bleError.value = String(error);
   } finally {
