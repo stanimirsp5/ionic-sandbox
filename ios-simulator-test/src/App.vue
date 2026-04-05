@@ -17,11 +17,16 @@
             <ion-card-subtitle>Scan</ion-card-subtitle>
             <ion-list>
               <ion-item v-for="(result, index) in scanResults" :key="index">
-                {{ result.device.name || 'Unnamed device' }} ({{ result.device.deviceId }})
+                {{ result.localName || result.device.name || `ESP (${result.device.deviceId})` }} ({{
+                  result.device.deviceId }})
               </ion-item>
             </ion-list>
             <ion-button :disabled="isScanning" @click="scan">
               {{ isScanning ? 'Scanning' : isScanning ? 'Scanning...' : 'Scan' }}
+            </ion-button>
+            <ion-button :disabled="isScanningRequestDevice" @click="scanRequestDevice">
+              {{ isScanningRequestDevice ? 'ScanningRequestDevice' : isScanningRequestDevice ?
+                'ScanningRequestDevice...' : 'ScanRequestDevice' }}
             </ion-button>
           </ion-card-content>
           <ion-card-content>
@@ -120,6 +125,7 @@ const autoApply = ref(true);
 
 const isConnecting = ref(false);
 const isScanning = ref(false);
+const isScanningRequestDevice = ref(false);
 const isConnected = ref(false);
 const isSending = ref(false);
 const bleError = ref('');
@@ -130,7 +136,10 @@ let deviceId: string | null = null;
 let bleInitialized = false;
 
 const appendStatus = (line: string) => {
-  statusLog.value = `${new Date().toLocaleTimeString()} ${line}\n${statusLog.value}`.trim();
+  const msg = `${new Date().toLocaleTimeString()} ${line}\n${statusLog.value}`.trim();
+  statusLog.value = msg;
+  console.log(msg);
+
 };
 
 const bytesToDataView = (bytes: Uint8Array) =>
@@ -154,9 +163,10 @@ const connect = async () => {
     }
 
     const device = await BleClient.requestDevice({
-      name: "Stemosoft smoke",
-      services: [SVC_UUID],
+      optionalServices: [SVC_UUID],
+      namePrefix: 'ST',
     });
+
 
     // const device = await BleClient.requestDevice({
     //   name: '68:8C:81:AC:9A:9C',
@@ -183,34 +193,6 @@ const connect = async () => {
   } finally {
     isConnecting.value = false;
   }
-};
-
-const disconnect = async () => {
-  if (deviceId) {
-    await BleClient.stopNotifications(deviceId, SVC_UUID, STATUS_UUID).catch(() => undefined);
-    await BleClient.disconnect(deviceId).catch(() => undefined);
-  }
-  isConnected.value = false;
-  appendStatus('disconnected');
-};
-
-const writeCtrl = async (bytes: Uint8Array) => {
-  if (!deviceId) throw new Error('No connected device');
-
-  await BleClient.write(deviceId, SVC_UUID, CTRL_UUID, bytesToDataView(bytes));
-};
-
-const writeData = async (bytes: Uint8Array) => {
-  if (!deviceId) throw new Error('No connected device');
-  await BleClient.writeWithoutResponse(deviceId, SVC_UUID, DATA_UUID, bytesToDataView(bytes));
-};
-
-const buildStartPacket = (len: number) => {
-  const buf = new ArrayBuffer(1 + 4);
-  const view = new DataView(buf);
-  view.setUint8(0, 0x01);
-  view.setUint32(1, len, true);
-  return new Uint8Array(buf);
 };
 
 const sendCredentials = async () => {
@@ -264,24 +246,90 @@ const sendCredentials = async () => {
 const scan = async () => {
   isScanning.value = true;
   scanResults.value = [];
+  bleError.value = '';
+
   try {
-    await BleClient.requestLEScan({}, (result: ScanResult) => {
-      appendStatus(`A bluetooth device has been found ${result}`);
-      scanResults.value.push(result);
+    await ensureBleReady();
+
+    await BleClient.requestLEScan(
+      { services: [SVC_UUID], allowDuplicates: false },
+      (result) => {
+        const exists = scanResults.value.some(r => r.device.deviceId === result.device.deviceId);
+        if (!exists) scanResults.value.push(result);
+      }
+    );
+
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    await BleClient.stopLEScan();
+    scanResults.value.forEach(result => {
+      const label = result.localName || result.device.name || `ESP (${result.device.deviceId})`;
+
+      appendStatus(`Found: ${result.device.name || 'Unnamed device'} (${result.device.deviceId}). Label: ${label}, RSSI: ${result.rssi} `);
+    });
+    scanResults.value.sort((a, b) =>
+      (a.device.name || '').localeCompare(b.device.name || '')
+    );
+  } catch (error) {
+    bleError.value = String(error);
+  } finally {
+    isScanning.value = false;
+  }
+};
+
+
+const scanRequestDevice = async () => {
+  isScanningRequestDevice.value = true;
+  scanResults.value = [];
+  bleError.value = '';
+
+  try {
+    await ensureBleReady();
+
+    const bleDevice = await BleClient.requestDevice({
+      namePrefix: 'ST',
+      services: [SVC_UUID],
     });
 
-    setTimeout(() => {
-      void BleClient.stopLEScan();
-      isScanning.value = false;
-    }, 10000);
-    scanResults.value.sort((a, b) => (a.device.name || '').localeCompare(b.device.name || ''));
-    return scanResults;
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    await BleClient.stopLEScan();
+    appendStatus(`Found scanRequestDevice: ${JSON.stringify(bleDevice)}`);
+
   } catch (error) {
-    appendStatus('Bluetooth Scan Error: ' + error);
-    isScanning.value = false;
-    return scanResults;
+    bleError.value = String(error);
+  } finally {
+    isScanningRequestDevice.value = false;
   }
-}
+};
+
+
+const disconnect = async () => {
+  if (deviceId) {
+    await BleClient.stopNotifications(deviceId, SVC_UUID, STATUS_UUID).catch(() => undefined);
+    await BleClient.disconnect(deviceId).catch(() => undefined);
+  }
+  isConnected.value = false;
+  appendStatus('disconnected');
+};
+
+const writeCtrl = async (bytes: Uint8Array) => {
+  if (!deviceId) throw new Error('No connected device');
+
+  await BleClient.write(deviceId, SVC_UUID, CTRL_UUID, bytesToDataView(bytes));
+};
+
+const writeData = async (bytes: Uint8Array) => {
+  if (!deviceId) throw new Error('No connected device');
+  await BleClient.writeWithoutResponse(deviceId, SVC_UUID, DATA_UUID, bytesToDataView(bytes));
+};
+
+const buildStartPacket = (len: number) => {
+  const buf = new ArrayBuffer(1 + 4);
+  const view = new DataView(buf);
+  view.setUint8(0, 0x01);
+  view.setUint32(1, len, true);
+  return new Uint8Array(buf);
+};
+
 
 onMounted(async () => {
   await ensureBleReady();
